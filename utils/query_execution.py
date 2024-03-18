@@ -17,7 +17,7 @@ def select_query(query_paths, number: int):
 def execute_query(query: str):
     query_note = select_query(query_paths= query, number = 0)
     
-    with open(f"data/queries/{query_note}", 'r') as file:
+    with open(f"data/queries/{query_note}", 'r', encoding='utf-8') as file:
         query_note = file.read()
         conn = connect(aws_access_key_id=AWS_ACESS_KEY,
                     aws_secret_access_key=AWS_SECRET_KEY,
