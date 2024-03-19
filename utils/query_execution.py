@@ -9,7 +9,7 @@ from config.aws_config import(
     S3_STAGING_DIR
 )
 
-def select_query(query_paths, number: int):
+def select_query(query_paths, number: int) -> list:
     list_archives = os.listdir(query_paths)
     list_archives = [archives for archives in list_archives if archives.endswith('.sql')][number]
     return list_archives
@@ -33,7 +33,7 @@ def execute_query(query: str):
         return col_names, results
 
 
-def create_dataframe_from_query(query: str):
+def create_dataframe_from_query(query: str) -> pd.DataFrame:
     #importando os resultados 
     try:
         col_names, result = execute_query(query)
