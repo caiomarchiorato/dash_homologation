@@ -1,11 +1,9 @@
 from dash import Dash, html, dcc, dash_table
 from PIL import Image
 #custom
-from layouts.table import create_table
 from components.header import generate_header
-from layouts.charts import generate_histogram_layout
 from callbacks.histogram_callbacks import register_histogram_callbacks
-from utils.query_execution import create_dataframe_from_query, execute_query
+from utils.query_execution import create_dataframe_from_query
 
 query_data = create_dataframe_from_query('data/queries/')
 col_name = query_data.columns
