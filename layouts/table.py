@@ -1,40 +1,45 @@
 from dash import dash_table, html
 from utils.query_execution import create_dataframe_from_query
+from config.default_styles import DEFAULT_COLOR_PRIMARY, DEFAULT_COLOR_SECONDARY, DEFAULT_FONT_FAMILY
 
 def create_table(query_data=None):
     if query_data is None:
-        query_data = create_dataframe_from_query('data/queries/')
-    
-    tableColors = {
-        'header': 'rgb(48, 102, 175)',
-        'header_font': 'white'
-    }
+        data = create_dataframe_from_query('data/queries/')
 
-    layout = html.Div([
-        html.Button("Executar Consultas", id="execute-query-button", n_clicks=0),
-        dash_table.DataTable(
-            id='table',
-            data=query_data.to_dict('records'),
-            columns=[{'id': i, 'name': i} for i in query_data.columns],
-            style_table={
+    styleTable = {
                 'maxWidth': '80%',
                 'margin': 'auto',  
-                'backgroundColor': '#f9f9f9'
-            },
-            style_data={"whiteSpace": "normal"},
-            style_cell={
+                'backgroundColor': DEFAULT_COLOR_SECONDARY,
+                'fontFamily': DEFAULT_FONT_FAMILY
+            }
+    
+    styleCell = {
                 "padding": "15px",
                 "midWidth": "0px",
                 "width": "25%",
                 "textAlign": "center",
                 "border": "white",
-            },
-            style_header={
-                "backgroundColor": tableColors['header'],
+            }
+    
+    styleHeader = {
+                "backgroundColor": DEFAULT_COLOR_PRIMARY,
                 "fontWeight": "bold",
-                "color": tableColors['header_font'],
-            },
-            page_size=5
+                "color": DEFAULT_COLOR_SECONDARY,
+                "fontFamily": DEFAULT_FONT_FAMILY,
+            }
+
+    layout = html.Div([
+        dash_table.DataTable(
+            id='table',
+            sort_action = 'native',
+            filter_action = 'native',
+            data=data.to_dict('records'),
+            columns=[{'id': i, 'name': i} for i in data.columns],
+            style_table= styleTable,
+            style_data={"whiteSpace": "normal"},
+            style_cell= styleCell,
+            style_header=styleHeader,
+            page_size=10
         )
     ])
     

@@ -1,50 +1,57 @@
-from dash import Dash, html, dcc
+from dash import Dash, html, dcc, dash_table
+from PIL import Image
 #custom
-from callbacks.tables_callbacks import register_table_callbacks
-from callbacks.histogram_callbacks import register_histogram_callbacks
 from layouts.table import create_table
+from components.header import generate_header
 from layouts.charts import generate_histogram_layout
+from callbacks.histogram_callbacks import register_histogram_callbacks
 from utils.query_execution import create_dataframe_from_query, execute_query
 
-col_name, _ = execute_query('data/queries/')
 query_data = create_dataframe_from_query('data/queries/')
+col_name = query_data.columns
 
 #instanciando o app
 app = Dash(__name__)
 
+print(col_name)
+pil_img = Image.open('components/assets/logo.png')
+
 app.layout = html.Div(children=[
-    html.Div([
-        dcc.Input(id="input-queries", type="text", placeholder="Digite a query"),
-        html.Button("Executar queries", id="button-executar-queries", n_clicks=0),
-    ]),
-    html.Div([
-        dcc.Dropdown(col_name, id='column-dropdown', placeholder='Select a coluna'),
-            html.Div(id='table-container'
-        )
-    ]),
     
-    generate_histogram_layout(query_data, col_name[0]),    
-    create_table()
+    # html.Div([
+    #     dcc.Input(id="input-queries", type="text", placeholder="Digite a query"),
+    #     html.Button("Executar queries", id="button-executar-queries", n_clicks=0),
+    # ]),
+    
+    generate_header(pil_img),
+    html.Div([
+    dash_table.DataTable(
+        id='datatable-interactivity',
+        columns=[
+            {"name": i, "id": i, "selectable": True} for i in query_data.columns
+        ],
+        data=query_data.to_dict('records'),
+        editable=True,
+        filter_action="native",
+        sort_action="native",
+        sort_mode="multi",
+        column_selectable="single",
+        row_selectable="multi",
+        row_deletable=True,
+        selected_columns=[],
+        selected_rows=[],
+        page_action="native",
+        page_current= 0,
+        page_size= 10,
+    ),
+    html.Div(id='datatable-interactivity-container')
+    ]),
+
+    # html.Div([generate_histogram_layout(query_data, col) for col in col_name]
+    # ),
 ])
 
-
-# @app.callback(
-#     Output('table-container', 'children'),
-#     [Input('button-executar-queries', 'n_clicks')],
-#     [State('input-queries', 'value')]
-# )
-# def execute_query_and_update_table(n_clicks, query):
-#     if n_clicks > 0:
-#         df = create_dataframe_from_query(query)
-#         global query_data
-#         query_data = df
-#         return f"A consulta foi executada com sucesso: {query}"
-#     else:
-#         return "Nenhuma consulta foi executada ainda."
-
-register_table_callbacks(app)
 register_histogram_callbacks(app, query_data)
-
 
 if __name__ == '__main__':
     app.run_server(debug=True)
