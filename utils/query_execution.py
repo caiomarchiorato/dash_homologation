@@ -9,36 +9,32 @@ from config.aws_config import(
     S3_STAGING_DIR
 )
 
-def select_query(query_paths, number: int) -> list:
-    list_archives = os.listdir(query_paths)
-    list_archives = [archives for archives in list_archives if archives.endswith('.sql')][number]
-    return list_archives
-
-def execute_query(query: str):
-    query_note = select_query(query_paths= query, number = 0)
-    
-    with open(f"data/queries/{query_note}", 'r', encoding='utf-8') as file:
-        query_note = file.read()
+def execute_query(sql_query: str):
+    try:
         conn = connect(aws_access_key_id=AWS_ACESS_KEY,
                     aws_secret_access_key=AWS_SECRET_KEY,
                     region_name=AWS_REGION,
                     s3_staging_dir=S3_STAGING_DIR)
         
         cursor = conn.cursor()
-        cursor.execute(query_note)
+        cursor.execute(sql_query)
         
         col_names = [col[0] for col in cursor.description]
         results = cursor.fetchall()
         
         return col_names, results
+    except Exception as e:
+        print(e)
+        return None, None
 
 
-def create_dataframe_from_query(query: str) -> pd.DataFrame:
+def create_dataframe_from_query(sql_query: str) -> pd.DataFrame:
     #importando os resultados 
     try:
-        col_names, result = execute_query(query)
-        df = pd.DataFrame(result, columns=col_names)
-        return df
+        col_names, result = execute_query(sql_query)
+        if col_names and result:
+            df = pd.DataFrame(result, columns=col_names)
+            return df
     except Exception as e:
         print(e)
         return None
